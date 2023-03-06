@@ -190,7 +190,7 @@ const validarCep = async (cliente) =>{
 
 const pesquisarCep = async (cliente) => {
 
-    const url = `https://viacep.com.br/ws/${cliente.cep}/json/`;
+    const url = `http://viacep.com.br/ws/${cliente.cep}/json/`;
     
     if (cepValido(cliente.cep)) {
         
