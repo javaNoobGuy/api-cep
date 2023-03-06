@@ -171,7 +171,7 @@ const cepValido = (cep) => {
 
 const validarCep = async (cliente) =>{
 
-    const url = `http://viacep.com.br/ws/${cliente.cep}/json`;
+    const url = `https://viacep.com.br/ws/${cliente.cep}/json`;
     const dados = await fetch(url);
     const endereco = await dados.json();
 
@@ -190,7 +190,7 @@ const validarCep = async (cliente) =>{
 
 const pesquisarCep = async (cliente) => {
 
-    const url = `http://viacep.com.br/ws/${cliente.cep}/json/`;
+    const url = `https://viacep.com.br/ws/${cliente.cep}/json/`;
     
     if (cepValido(cliente.cep)) {
         
