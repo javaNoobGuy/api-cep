@@ -3,7 +3,7 @@ var enderecos = null;
 var enderecosApi = null;
 
 const atualizarApiEndereco = async() =>{
-    const res = await fetch('http://localhost:3000/data');
+    const res = await fetch('https://localhost:3000/data');
     enderecosApi = await res.json();
 }
 
@@ -112,7 +112,7 @@ const addClientePost = async(cliente) =>{
         body: JSON.stringify(cliente)
     }
 
-    const adcionarCliente = await fetch('http://localhost:3000/sendClient', init);
+    const adcionarCliente = await fetch('https://localhost:3000/sendClient', init);
     const testePost = await adcionarCliente.json();
     console.log(testePost);
 }
@@ -190,7 +190,7 @@ const validarCep = async (cliente) =>{
 
 const pesquisarCep = async (cliente) => {
 
-    const url = `http://viacep.com.br/ws/${cliente.cep}/json/`;
+    const url = `https://viacep.com.br/ws/${cliente.cep}/json/`;
     
     if (cepValido(cliente.cep)) {
         
