@@ -2,13 +2,99 @@ var body;
 var enderecos = null;
 var enderecosApi = null;
 
+const localStorageCliente = JSON.parse(localStorage.getItem('clienteAtual'));
+let clienteAtual = localStorage.getItem('clienteAtual') !== null ? localStorageCliente : null;
+
+console.log('cliente logado:');
+console.log(clienteAtual);
+
+
+//preencher os inputs com arrow functions
+const preencherFormulario = (cliente) => {
+    let mapa = document.getElementById("mapa");
+    let ola = document.getElementById("ola");
+    ola.innerHTML = `olá ${cliente.nome}`;
+    console.log('sdaaaaaa'+cliente);
+    console.log(cliente.endereco);
+
+    let rua = cliente.endereco.logradouro;
+    let estado = cliente.endereco.uf;
+    let cidade = cliente.endereco.localidade;
+    let bairro = cliente.endereco.bairro;
+
+    enderecos = '{"rua" : "' + rua + '", "estado" : "'+estado+'", "cidade" : "'+cidade+'", "bairro" : "'+bairro+'" }';
+    const datas = JSON.parse(enderecos);
+    console.log(datas);
+
+    estado = estado.replaceAll(" ", "%20");
+    rua = rua.replaceAll(" ", "%20");
+    cidade = cidade.replaceAll(" ", "%20");
+    bairro = bairro.replaceAll(" ", "%20");     
+         
+    mapa.innerHTML = "<div class="+"mapouter"+"><div class="+"gmap_canvas"+"><iframe width="+"600"+" height="+"500"+" id="+"gmap_canvas"+" src="+"https://maps.google.com/maps?q="+cidade+",%20"+ bairro+ ",%20"+rua+",20%"+estado+"&t=&z=18&ie=UTF8&iwloc=&output=embed"+" frameborder="+"0"+" scrolling="+"no"+" marginheight="+"0"+" marginwidth="+"0"+"></iframe><br><style>.mapouter{position:relative;text-align:right;height:500px;width:600px;}</style><a href="+"https://www.embedgooglemap.net"+ ">embed google maps website</a><style>.gmap_canvas {overflow:hidden;background:none!important;height:500px;width:600px;}</style></div></div>";
+    document.getElementById('endereco').innerHTML = '<ol>' + '<li>rua: '+datas.rua+'</li> <li>estado: '+datas.estado+'</li> <li>cidade: '+datas.cidade+'</li> <li>cidade: '+datas.bairro+'</li>'
+    + '</ol>'
+
+    console.log("LINK : https://maps.google.com/maps?q="+cidade+",%20"+ bairro+ ",%20"+rua+",20%"+estado+"&t=&z=13&ie=UTF8&iwloc=&output=embed");
+
+    
+}
+
+if(clienteAtual !== null){
+    console.log(clienteAtual.cliente.nome);
+    preencherFormulario(clienteAtual.cliente);
+}
+
+const updateLocalStorageCliente = () =>{
+    localStorage.setItem('clienteAtual', JSON.stringify(clienteAtual));
+}
+
 const atualizarApiEndereco = async() =>{
     const res = await fetch('http://localhost:3000/data');
     enderecosApi = await res.json();
 }
 
+const deslogarCliente = () =>{
+    clienteAtual = null;
+    updateLocalStorageCliente();
+}
+
+const sair = () =>{
+    deslogarCliente();
+    location.href="./index.html";
+}
 
 atualizarApiEndereco();
+
+const logar = async() =>{
+    console.log('logando');
+    await atualizarApiEndereco();
+    document.getElementById('feedback').innerText = "";//limpa o feedback
+    document.getElementById('feedback').className = "";//tira a classe para não ter formatação
+    let inputEmail = document.getElementById('email').value;
+    let inputSenha = document.getElementById('senha').value;
+    result = encontrarConta(inputEmail, inputSenha);
+
+    if(result.length > 0){
+        let erroFeed = document.getElementById('feedback');//pega um elemento para exibir as mensagens de erro
+        erroFeed.className = "erro";//adiciona classe com formatação de erro
+
+        for(let i = 0; i < result.length;i++){//adiciona as mensagens de erro no elemento feedback
+            erroFeed.append(result[i]);
+            erroFeed.append(document.createElement('br'));
+        }
+
+        document.getElementById('email').value = "";
+        document.getElementById('senha').value = "";        
+
+    }else{
+        //deslogarCliente();
+        let index = getItemIndex('senha', inputSenha, enderecosApi);
+        clienteAtual = enderecosApi[index];
+        updateLocalStorageCliente();
+        location.href="./cep.html";
+    }
+}
 
 const getItemIndex = (propriedade, valor, data) =>{
     return data.findIndex((item) => item.cliente[propriedade] == valor);
@@ -49,6 +135,20 @@ const validarConta = (clienteC, confirmeSenha) =>{
     }
 
     return feedbacks;//retorna o vetor de feedbacks
+}
+
+const encontrarConta = (email, senha) =>{
+    let feedbacks = [];//vetor para guardar informações de feedback
+
+    let indexe = getItemIndex('email', email, enderecosApi);
+
+    let index = getItemIndex('senha', senha, enderecosApi);
+    if(enderecosApi[index] == undefined || enderecosApi[indexe] === undefined){
+        feedbacks.push('email ou senha incorretos');
+        console.log('erro2');
+    }
+
+    return feedbacks;
 }
 
 const criarConta = async() =>{//on click cria conta
@@ -114,7 +214,11 @@ const addClientePost = async(cliente) =>{
 
     const adcionarCliente = await fetch('http://localhost:3000/sendClient', init);
     const testePost = await adcionarCliente.json();
+    //deslogarCliente();
+    clienteAtual = testePost;
+    updateLocalStorageCliente();
     console.log(testePost);
+    location.href= "./cep.html";
 }
 
 const adicionarClienteSistema = (cliente) => {
@@ -127,37 +231,6 @@ const adicionarClienteSistema = (cliente) => {
 }
 
 //cep
-
-//preencher os inputs com arrow functions
-const preencherFormulario = (cliente) => {
-    let oldInner = document.getElementsByClassName('loginCadastroBg').innerHTML;
-    document.getElementsByClassName('loginCadastroBg').innerHTML = "";
-    let mapa = document.getElementById("mapa");
-    console.log('sdaaaaaa'+cliente);
-    console.log(cliente.endereco);
-
-    let rua = cliente.endereco.logradouro;
-    let estado = cliente.endereco.uf;
-    let cidade = cliente.endereco.localidade;
-    let bairro = cliente.endereco.bairro;
-
-    enderecos = '{"rua" : "' + rua + '", "estado" : "'+estado+'", "cidade" : "'+cidade+'", "bairro" : "'+bairro+'" }';
-    const datas = JSON.parse(enderecos);
-    console.log(datas);
-
-    estado = estado.replaceAll(" ", "%20");
-    rua = rua.replaceAll(" ", "%20");
-    cidade = cidade.replaceAll(" ", "%20");
-    bairro = bairro.replaceAll(" ", "%20");     
-         
-    mapa.innerHTML = "<div class="+"mapouter"+"><div class="+"gmap_canvas"+"><iframe width="+"600"+" height="+"500"+" id="+"gmap_canvas"+" src="+"https://maps.google.com/maps?q="+cidade+",%20"+ bairro+ ",%20"+rua+",20%"+estado+"&t=&z=18&ie=UTF8&iwloc=&output=embed"+" frameborder="+"0"+" scrolling="+"no"+" marginheight="+"0"+" marginwidth="+"0"+"></iframe><br><style>.mapouter{position:relative;text-align:right;height:500px;width:600px;}</style><a href="+"https://www.embedgooglemap.net"+ ">embed google maps website</a><style>.gmap_canvas {overflow:hidden;background:none!important;height:500px;width:600px;}</style></div></div>";
-    document.getElementById('endereco').innerHTML = '<ol>' + '<li>rua: '+datas.rua+'</li> <li>estado: '+datas.estado+'</li> <li>cidade: '+datas.cidade+'</li> <li>cidade: '+datas.bairro+'</li>'
-    + '</ol>'
-
-    console.log("LINK : https://maps.google.com/maps?q="+cidade+",%20"+ bairro+ ",%20"+rua+",20%"+estado+"&t=&z=13&ie=UTF8&iwloc=&output=embed");
-
-    
-}
 //autopreenchimento
 const cepValido = (cep) => {
     if (cep.length = 8) { 
@@ -199,7 +272,7 @@ const pesquisarCep = async (cliente) => {
         console.log(endereco);
         cliente.endereco = endereco;
         adicionarClienteSistema(cliente);
-        preencherFormulario(cliente);
+        //preencherFormulario(cliente);
     }
 }
 

@@ -20,9 +20,12 @@ body{
 .loginCadastroBg{
     background-color: rgba(116, 116, 116, 0.466);
     min-width:120px;
-    max-width: 240px;
+    max-width: 700px;
+    height: 100%;
+    min-height: 200px;
+    max-height: 650px;
     margin:auto;
-    margin-top: 300px;
+    margin-top: 200px;
     border-radius: 15px;
     display: flex;
     flex-flow: column;
