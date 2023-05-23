@@ -50,7 +50,7 @@ const updateLocalStorageCliente = () =>{
 }
 
 const atualizarApiEndereco = async() =>{
-    const res = await fetch('http://localhost:3000/data');
+    const res = await fetch('https://server-api-cep--javanoobguy.repl.co/data');
     enderecosApi = await res.json();
 }
 
@@ -212,7 +212,7 @@ const addClientePost = async(cliente) =>{
         body: JSON.stringify(cliente)
     }
 
-    const adcionarCliente = await fetch('http://localhost:3000/sendClient', init);
+    const adcionarCliente = await fetch('https://server-api-cep--javanoobguy.repl.co/sendClient', init);
     const testePost = await adcionarCliente.json();
     //deslogarCliente();
     clienteAtual = testePost;
